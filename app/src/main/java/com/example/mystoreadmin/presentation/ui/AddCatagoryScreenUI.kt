@@ -1,6 +1,8 @@
 package com.example.mystoreadmin.presentation.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,9 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import com.example.mystoreadmin.presentation.viewModel.MyViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,7 +72,16 @@ fun AddCategoryScreenUI(innerPadding: PaddingValues,viewModel: MyViewModel = hil
             Text(error.message)
         }
         UiState.Loading -> {
-            CircularProgressIndicator()
+            Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)) // dim background
+                .pointerInput(Unit) { /* Consume all touches */ }
+                .zIndex(1f), // ensures it's on top
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
+        }
         }
         is UiState.Success<*> -> {
             val successResponse = (state as UiState.Success<String>).data
@@ -86,6 +100,9 @@ fun AddCategoryScreenUI(innerPadding: PaddingValues,viewModel: MyViewModel = hil
                             .wrapContentSize(Alignment.Center),
                         textAlign = TextAlign.Center,
                     )
+                    Button(onClick = {  }, modifier = Modifier.align(Alignment.BottomEnd as Alignment.Horizontal)){
+                        Text("Dismiss")
+                    }
                 }
             }
         }
