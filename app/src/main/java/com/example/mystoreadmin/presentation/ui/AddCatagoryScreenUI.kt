@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -85,23 +86,29 @@ fun AddCategoryScreenUI(innerPadding: PaddingValues,viewModel: MyViewModel = hil
         }
         is UiState.Success<*> -> {
             val successResponse = (state as UiState.Success<String>).data
-            Dialog(onDismissRequest = {  }) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Text(
-                        text = successResponse,
+            var showDialog by remember { mutableStateOf(true) }
+            if (showDialog){
+                Dialog(onDismissRequest = { showDialog = false }) {
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentSize(Alignment.Center),
-                        textAlign = TextAlign.Center,
-                    )
-                    Button(onClick = {  }, modifier = Modifier.align(Alignment.BottomEnd as Alignment.Horizontal)){
-                        Text("Dismiss")
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Column(modifier = Modifier.fillMaxSize(),
+                            Arrangement.SpaceAround,
+                            Alignment.CenterHorizontally) {
+                            Text(
+                                text = successResponse
+                            )
+                            Button(
+                                onClick = { showDialog = false }
+                                , modifier = Modifier.padding(130.dp, 0.dp,0.dp,0.dp)
+                            ) {
+                                Text("Dismiss")
+                            }
+                        }
                     }
                 }
             }
