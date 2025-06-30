@@ -1,8 +1,10 @@
 package com.example.mystoreadmin.data.repositoryImpl
 
 import com.example.mystoreadmin.common.CATEGORY_PATH
+import com.example.mystoreadmin.common.PRODUCT_PATH
 import com.example.mystoreadmin.common.ResultState
 import com.example.mystoreadmin.domain.models.CategoryModel
+import com.example.mystoreadmin.domain.models.Product
 import com.example.mystoreadmin.domain.repo.Repo
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -20,7 +22,7 @@ class RepoImpl @Inject constructor(
             trySend(ResultState.Loading)
             try {
                 firestore.collection(CATEGORY_PATH).add(categoryModel).addOnSuccessListener {
-                    trySend(ResultState.Success("Category Added Successfully"))
+                    trySend(ResultState.Success("Category Added Successfully."))
                 }.addOnFailureListener {
                     trySend(ResultState.Error(it.message.toString()))
                 }
@@ -31,4 +33,21 @@ class RepoImpl @Inject constructor(
                 close()
             }
         }
+
+    override suspend fun addProduct(product: Product): Flow<ResultState<String>> = callbackFlow{
+
+        trySend(ResultState.Loading)
+        try {
+            firestore.collection(PRODUCT_PATH).add(product).addOnSuccessListener {
+                trySend(ResultState.Success("Product Added Successfully."))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.message.toString()))
+            }
+        }catch (e: Exception){
+            trySend(ResultState.Error(e.toString()))
+        }
+        awaitClose {
+            close()
+        }
+    }
 }

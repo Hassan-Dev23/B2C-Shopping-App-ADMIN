@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.mystoreadmin.common.ResultState
 import com.example.mystoreadmin.common.ResultState.*
 import com.example.mystoreadmin.domain.models.CategoryModel
+import com.example.mystoreadmin.domain.models.Product
 import com.example.mystoreadmin.domain.useCases.AddCategoryUseCase
+import com.example.mystoreadmin.domain.useCases.AddProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,41 +16,65 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MyViewModel @Inject constructor(
-    private val addCategoryUseCase: AddCategoryUseCase
-) : ViewModel(){
-//    Ui States
-   private val _addCategoryState = MutableStateFlow<UiState<String>>(UiState.Empty)
+    private val addCategoryUseCase: AddCategoryUseCase,
+    private val addProductUseCase: AddProductUseCase
+) : ViewModel() {
+    //    Ui States
+    private val _addCategoryState = MutableStateFlow<UiState<String>>(UiState.Empty)
     val addCategoryState = _addCategoryState.asStateFlow()
 
+    private val _addProductState = MutableStateFlow<UiState<String>>(UiState.Empty)
+    val addProductState = _addProductState.asStateFlow()
 
 
-
-
-
-
-
-
-
-//    Functions for Ui States
-    fun addCategory(category: CategoryModel){
+    //    Functions for Ui States
+    fun addCategory(category: CategoryModel) {
         viewModelScope.launch {
             addCategoryUseCase.addCategoryUseCase(category).collect {
-                when(it){
+                when (it) {
                     is ResultState.Error -> {
                         _addCategoryState.value = UiState.Error(it.message)
                     }
+
                     is ResultState.Loading -> {
                         _addCategoryState.value = UiState.Loading
                     }
+
                     is ResultState.Success<*> -> {
                         _addCategoryState.value = UiState.Success(it.data as String)
                     }
+
                     is ResultState.Empty -> {}
                 }
             }
         }
     }
 
+
+    fun addProduct(product: Product) {
+        viewModelScope.launch {
+            addProductUseCase.addProductUseCase(product).collect {
+                when (it) {
+                    is ResultState.Error -> {
+                        _addProductState.value = UiState.Error(it.message)
+                    }
+
+                    is ResultState.Loading -> {
+                        _addProductState.value = UiState.Loading
+                    }
+
+                    is ResultState.Success<*> -> {
+                        _addProductState.value = UiState.Success(it.data as String)
+                    }
+
+                    is ResultState.Empty -> {}
+                }
+            }
+
+        }
+
+
+    }
 }
 
 

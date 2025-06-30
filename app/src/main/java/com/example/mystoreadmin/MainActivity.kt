@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.mystoreadmin.presentation.navigation.NavigationHub
 import com.example.mystoreadmin.presentation.theme.MyStore_AdminTheme
 import com.example.mystoreadmin.presentation.ui.AddCategoryScreenUI
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,9 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyStore_AdminTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AddCategoryScreenUI(innerPadding)
-                }
+                NavigationHub()
             }
         }
     }
