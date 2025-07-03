@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.callbackFlow
 class RepoImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage
-): Repo {
+) : Repo {
     override suspend fun addCategory(categoryModel: CategoryModel): Flow<ResultState<String>> =
         callbackFlow {
             trySend(ResultState.Loading)
@@ -27,14 +27,20 @@ class RepoImpl @Inject constructor(
                     trySend(ResultState.Error(it.message.toString()))
                 }
             } catch (e: Exception) {
-                trySend(ResultState.Error(e.message.toString()))
+                trySend(
+                    ResultState.Error(
+                        "Error Message : ${e.message.toString()}" + "\n" +
+                                "Error Cause : ${e.cause.toString()}" + "\n" +
+                                "Error StackTrace : ${e.stackTrace}"
+                    )
+                )
             }
             awaitClose {
                 close()
             }
         }
 
-    override suspend fun addProduct(product: Product): Flow<ResultState<String>> = callbackFlow{
+    override suspend fun addProduct(product: Product): Flow<ResultState<String>> = callbackFlow {
 
         trySend(ResultState.Loading)
         try {
@@ -43,8 +49,40 @@ class RepoImpl @Inject constructor(
             }.addOnFailureListener {
                 trySend(ResultState.Error(it.message.toString()))
             }
-        }catch (e: Exception){
-            trySend(ResultState.Error(e.toString()))
+        } catch (e: Exception) {
+            trySend(
+                ResultState.Error(
+                    "Error Message : ${e.message.toString()}" + "\n" +
+                            "Error Cause : ${e.cause.toString()}" + "\n" +
+                            "Error StackTrace : ${e.stackTrace}"
+                )
+            )
+        }
+        awaitClose {
+            close()
+        }
+    }
+
+    override suspend fun getAllCategories(): Flow<ResultState<List<CategoryModel>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        try {
+            firestore.collection(CATEGORY_PATH).get().addOnSuccessListener {
+                val categories = it.documents.mapNotNull { documentSnapshot ->
+                    documentSnapshot.toObject(CategoryModel::class.java)
+                }
+
+                trySend(ResultState.Success(categories))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.message.toString()))
+            }
+        } catch (e: Exception) {
+            trySend(
+                ResultState.Error(
+                    "Error Message : ${e.message.toString()}" + "\n" +
+                            "Error Cause : ${e.cause.toString()}" + "\n" +
+                            "Error StackTrace : ${e.stackTrace}"
+                )
+            )
         }
         awaitClose {
             close()
