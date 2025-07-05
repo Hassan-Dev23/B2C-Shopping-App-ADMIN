@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">337780294331</string>
+    <string name="google_api_key" translatable="false">AIzaSyDC8QjYE2hdI3kjCHxN--4nbXt7IZ_Aim4</string>
+    <string name="google_app_id" translatable="false">1:337780294331:android:e535b56449d0983bc85f9e</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDC8QjYE2hdI3kjCHxN--4nbXt7IZ_Aim4</string>
+    <string name="google_storage_bucket" translatable="false">b2c-shopping.firebasestorage.app</string>
+    <string name="project_id" translatable="false">b2c-shopping</string>
+</resources>
