@@ -1,17 +1,22 @@
 package com.example.mystoreadmin.data.repositoryImpl
 
+import android.net.Uri
+import android.widget.Toast
 import com.example.mystoreadmin.common.CATEGORY_PATH
 import com.example.mystoreadmin.common.PRODUCT_PATH
 import com.example.mystoreadmin.common.ResultState
 import com.example.mystoreadmin.domain.models.CategoryModel
 import com.example.mystoreadmin.domain.models.Product
 import com.example.mystoreadmin.domain.repo.Repo
+import com.google.api.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class RepoImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -88,4 +93,94 @@ class RepoImpl @Inject constructor(
             close()
         }
     }
+
+    //    override suspend fun addProductPhotos(photoUri: Uri): Flow<ResultState<String>> =
+//        callbackFlow {
+//            trySend(ResultState.Loading)
+//            try {
+//                System.currentTimeMillis()
+//                storage.reference.child("products/${System.currentTimeMillis()}")
+//                    .putFile(photoUri).addOnSuccessListener {
+//
+//                        it.storage.downloadUrl.addOnSuccessListener {
+//                            trySend(ResultState.Success(it.toString()))
+//                        }.addOnFailureListener {
+//                            trySend(
+//                                ResultState.Error(
+//                                    "Error Message : ${it.message.toString()}" + "\n" +
+//                                            "Error Cause : ${it.cause.toString()}" + "\n" +
+//                                            "Error StackTrace : ${it.stackTrace}"
+//                                )
+//                            )
+//                        }
+//                    }.addOnFailureListener {
+//                        trySend(
+//                            ResultState.Error(
+//                                "Error Message : ${it.message.toString()}" + "\n" +
+//                                        "Error Cause : ${it.cause.toString()}" + "\n" +
+//                                        "Error StackTrace : ${it.stackTrace}"
+//                            )
+//                        )
+//                    }
+//
+//            } catch (e: Exception) {
+//                trySend(
+//                    ResultState.Error(
+//                        "Error Message : ${e.message.toString()}" + "\n" +
+//                                "Error Cause : ${e.cause.toString()}" + "\n" +
+//                                "Error StackTrace : ${e.stackTrace}"
+//                    )
+//                )
+//            }
+//        }
+//    Same function from Chatgpt for list of uri
+    override suspend fun addProductPhotos(photoUris: List<Uri>): Flow<ResultState<List<String>>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+
+            val downloadUrls = mutableListOf<String>()
+
+            val storageRef = storage.reference
+
+            try {
+                photoUris.forEachIndexed { index, uri ->
+                    val fileName = "products/${System.currentTimeMillis()}_$index"
+                    val imageRef = storageRef.child(fileName)
+
+                    imageRef.putFile(uri)
+                        .addOnSuccessListener { taskSnapshot ->
+                            taskSnapshot.storage.downloadUrl
+                                .addOnSuccessListener { downloadUrl ->
+                                    downloadUrls.add(downloadUrl.toString())
+
+                                    if (downloadUrls.size == photoUris.size) {
+                                        trySend(ResultState.Success(downloadUrls))
+                                        close()
+                                    }
+                                }
+                                .addOnFailureListener { error ->
+                                    trySend(ResultState.Error("Download URL Error: ${error.message}"))
+                                    close()
+                                }
+                        }
+                        .addOnFailureListener { error ->
+                            trySend(ResultState.Error("Upload Error: ${error.message}"))
+                            close()
+                        }
+                }
+            } catch (e: Exception) {
+                trySend(
+                    ResultState.Error(
+                        "Error Message : ${e.message}" +
+                                "\nError Cause : ${e.cause}" +
+                                "\nError StackTrace : ${e.stackTraceToString()}"
+                    )
+                )
+                close()
+            }
+
+            awaitClose {}
+        }
+
+
 }

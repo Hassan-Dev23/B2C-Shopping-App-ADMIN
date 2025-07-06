@@ -86,4 +86,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
 //    Coil
     implementation(libs.coil.compose)
+//    coroutines
+    implementation(libs.kotlinx.coroutines.play.services)
+
 }

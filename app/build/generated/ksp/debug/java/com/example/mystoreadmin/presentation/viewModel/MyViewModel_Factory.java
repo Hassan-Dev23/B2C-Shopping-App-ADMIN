@@ -1,6 +1,7 @@
 package com.example.mystoreadmin.presentation.viewModel;
 
 import com.example.mystoreadmin.domain.useCases.AddCategoryUseCase;
+import com.example.mystoreadmin.domain.useCases.AddProductPhotoUseCase;
 import com.example.mystoreadmin.domain.useCases.AddProductUseCase;
 import com.example.mystoreadmin.domain.useCases.GetAllCategoriesUseCase;
 import dagger.internal.DaggerGenerated;
@@ -33,27 +34,33 @@ public final class MyViewModel_Factory implements Factory<MyViewModel> {
 
   private final Provider<GetAllCategoriesUseCase> getAllCategoriesUseCaseProvider;
 
+  private final Provider<AddProductPhotoUseCase> addProductPhotoUseCaseProvider;
+
   public MyViewModel_Factory(Provider<AddCategoryUseCase> addCategoryUseCaseProvider,
       Provider<AddProductUseCase> addProductUseCaseProvider,
-      Provider<GetAllCategoriesUseCase> getAllCategoriesUseCaseProvider) {
+      Provider<GetAllCategoriesUseCase> getAllCategoriesUseCaseProvider,
+      Provider<AddProductPhotoUseCase> addProductPhotoUseCaseProvider) {
     this.addCategoryUseCaseProvider = addCategoryUseCaseProvider;
     this.addProductUseCaseProvider = addProductUseCaseProvider;
     this.getAllCategoriesUseCaseProvider = getAllCategoriesUseCaseProvider;
+    this.addProductPhotoUseCaseProvider = addProductPhotoUseCaseProvider;
   }
 
   @Override
   public MyViewModel get() {
-    return newInstance(addCategoryUseCaseProvider.get(), addProductUseCaseProvider.get(), getAllCategoriesUseCaseProvider.get());
+    return newInstance(addCategoryUseCaseProvider.get(), addProductUseCaseProvider.get(), getAllCategoriesUseCaseProvider.get(), addProductPhotoUseCaseProvider.get());
   }
 
   public static MyViewModel_Factory create(Provider<AddCategoryUseCase> addCategoryUseCaseProvider,
       Provider<AddProductUseCase> addProductUseCaseProvider,
-      Provider<GetAllCategoriesUseCase> getAllCategoriesUseCaseProvider) {
-    return new MyViewModel_Factory(addCategoryUseCaseProvider, addProductUseCaseProvider, getAllCategoriesUseCaseProvider);
+      Provider<GetAllCategoriesUseCase> getAllCategoriesUseCaseProvider,
+      Provider<AddProductPhotoUseCase> addProductPhotoUseCaseProvider) {
+    return new MyViewModel_Factory(addCategoryUseCaseProvider, addProductUseCaseProvider, getAllCategoriesUseCaseProvider, addProductPhotoUseCaseProvider);
   }
 
   public static MyViewModel newInstance(AddCategoryUseCase addCategoryUseCase,
-      AddProductUseCase addProductUseCase, GetAllCategoriesUseCase getAllCategoriesUseCase) {
-    return new MyViewModel(addCategoryUseCase, addProductUseCase, getAllCategoriesUseCase);
+      AddProductUseCase addProductUseCase, GetAllCategoriesUseCase getAllCategoriesUseCase,
+      AddProductPhotoUseCase addProductPhotoUseCase) {
+    return new MyViewModel(addCategoryUseCase, addProductUseCase, getAllCategoriesUseCase, addProductPhotoUseCase);
   }
 }

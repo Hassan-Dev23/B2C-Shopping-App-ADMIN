@@ -1,5 +1,7 @@
 package com.example.mystoreadmin.presentation.viewModel
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mystoreadmin.common.ResultState
@@ -7,8 +9,10 @@ import com.example.mystoreadmin.common.ResultState.*
 import com.example.mystoreadmin.domain.models.CategoryModel
 import com.example.mystoreadmin.domain.models.Product
 import com.example.mystoreadmin.domain.useCases.AddCategoryUseCase
+import com.example.mystoreadmin.domain.useCases.AddProductPhotoUseCase
 import com.example.mystoreadmin.domain.useCases.AddProductUseCase
 import com.example.mystoreadmin.domain.useCases.GetAllCategoriesUseCase
+import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +23,8 @@ import kotlinx.coroutines.launch
 class MyViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val addProductUseCase: AddProductUseCase,
-    private val getAllCategoriesUseCase: GetAllCategoriesUseCase
+    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
+    private val addProductPhotoUseCase: AddProductPhotoUseCase
 ) : ViewModel() {
     //    Ui States
     private val _addCategoryState = MutableStateFlow<UiState<String>>(UiState.Empty)
@@ -29,6 +34,15 @@ class MyViewModel @Inject constructor(
     val addProductState = _addProductState.asStateFlow()
     private val _getAllCategoriesState = MutableStateFlow<UiState<List<CategoryModel>>>(UiState.Empty)
     val getAllCategoriesState = _getAllCategoriesState.asStateFlow()
+    private val _addProductPhotosState = MutableStateFlow<UiState<List<String>>>(UiState.Empty)
+    val addProductPhotosState = _addProductPhotosState.asStateFlow()
+
+
+
+    fun resetUiStates(){
+        _addProductState.value = UiState.Empty
+        _addProductPhotosState.value = UiState.Empty
+    }
 
 
     //    Functions for Ui States
@@ -76,6 +90,34 @@ class MyViewModel @Inject constructor(
             }
 
         }
+    }
+
+
+
+    fun addProductPhotos(photoUris: List<Uri>){
+        viewModelScope.launch {
+            addProductPhotoUseCase.invoke(photoUris).collect{
+
+                when (it) {
+                    is ResultState.Error -> {
+                        _addProductPhotosState.value = UiState.Error(it.message)
+                    }
+
+                    is ResultState.Loading -> {
+                        _addProductPhotosState.value = UiState.Loading
+                    }
+
+                    is ResultState.Success<*> -> {
+
+                        _addProductPhotosState.value = UiState.Success(it.data as List<String>)
+                    }
+
+                    is ResultState.Empty -> {}
+                }
+            }
+
+        }
+
     }
     fun getAllCategories() {
         viewModelScope.launch {
