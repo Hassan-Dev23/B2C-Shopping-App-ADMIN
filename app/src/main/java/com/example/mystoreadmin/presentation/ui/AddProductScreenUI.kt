@@ -26,6 +26,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -34,6 +36,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -60,11 +64,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavBackStack
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.mystoreadmin.common.isValidProduct
 import com.example.mystoreadmin.domain.models.CategoryModel
 import com.example.mystoreadmin.domain.models.Product
+import com.example.mystoreadmin.presentation.navigation.AddCategoryScreen
+import com.example.mystoreadmin.presentation.navigation.AddProductScreen
 import com.example.mystoreadmin.presentation.viewModel.MyViewModel
 import com.example.mystoreadmin.presentation.viewModel.UiState
 import kotlinx.coroutines.launch
@@ -74,7 +81,8 @@ import kotlinx.coroutines.launch
 fun AddProductScreenUI(
     paddingValues: PaddingValues,
     viewModel: MyViewModel = hiltViewModel(),
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    backStack: NavBackStack
 ) {
     val addProductUiState by viewModel.addProductState.collectAsStateWithLifecycle()
     val categoriesListState by viewModel.getAllCategoriesState.collectAsStateWithLifecycle()
@@ -114,6 +122,14 @@ fun AddProductScreenUI(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            IconButton(onClick ={
+                backStack.removeLastOrNull()
+                backStack.add(AddCategoryScreen)
+            } ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+
+
+            }
 
             if (productImageUris.isNotEmpty()) {
 
@@ -264,10 +280,11 @@ fun AddProductScreenUI(
         }
         val context = LocalContext.current
 
-        when(addProductPhotosState){
+        when (addProductPhotosState) {
             UiState.Empty -> {
 
             }
+
             is UiState.Error -> {}
             UiState.Loading -> {
                 Box(
@@ -289,7 +306,7 @@ fun AddProductScreenUI(
                 }
             }
 
-                    is UiState.Success<*> -> {
+            is UiState.Success<*> -> {
                 val productPhotosUrls = (addProductPhotosState as UiState.Success).data
                 LaunchedEffect(Unit) {
                     Toast.makeText(context, "Images Uploaded!", Toast.LENGTH_SHORT).show()
@@ -310,7 +327,6 @@ fun AddProductScreenUI(
 
             }
         }
-
 
 
         var showErrorDialog by remember { mutableStateOf(false) }
@@ -342,7 +358,16 @@ fun AddProductScreenUI(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)),
+                        .zIndex(1f)
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .pointerInput(Unit) {
+                            // Consume all touches
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent()
+                                }
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -351,9 +376,9 @@ fun AddProductScreenUI(
 
             is UiState.Success<*> -> {
                 val successResponse = (addProductUiState as UiState.Success<String>).data
-                LaunchedEffect(Unit){
+                LaunchedEffect(Unit) {
                     scope.launch {
-                        snackBarHostState.showSnackbar(successResponse)
+
                         productName = ""
                         productDescription = ""
                         productPrice = ""
@@ -363,55 +388,11 @@ fun AddProductScreenUI(
                         isAvailable = false
                         productQuantity = ""
                         productImageUris = emptyList()
+                        snackBarHostState.showSnackbar(successResponse)
                         viewModel.resetUiStates()
                     }
                 }
 
-//                var showDialog by remember { mutableStateOf(true) }
-//
-//                if (showDialog) {
-//                    Dialog(onDismissRequest = {
-//                        showDialog = false
-//                        productName = ""
-//                        productDescription = ""
-//                        productPrice = ""
-//                        productCategory = ""
-//                        productQuantity = ""
-//                        productImageUris = emptyList()
-//
-//                    }) {
-//                        Card(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(200.dp)
-//                                .padding(16.dp),
-//                            shape = RoundedCornerShape(16.dp),
-//                        ) {
-//                            Column(
-//                                modifier = Modifier.fillMaxSize(),
-//                                Arrangement.SpaceAround,
-//                                Alignment.CenterHorizontally
-//                            ) {
-//                                Text(
-//                                    text = successResponse
-//                                )
-//                                Button(
-//                                    onClick = {
-//                                        showDialog = false
-//                                        productName = ""
-//                                        productDescription = ""
-//                                        productPrice = ""
-//                                        productCategory = ""
-//                                        productQuantity = ""
-//                                        productImageUris = emptyList()
-//                                    }, modifier = Modifier.padding(130.dp, 0.dp, 0.dp, 0.dp)
-//                                ) {
-//                                    Text("Dismiss")
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
             }
         }
 
@@ -419,21 +400,3 @@ fun AddProductScreenUI(
 
 }
 
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun CustomSnackBar(snackBarText: String){
-    val snackBarHost = remember{ SnackbarHostState() }
-val scope = rememberCoroutineScope()
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackBarHost)
-        }
-        , modifier = Modifier.wrapContentSize()
-    ) {
-        LaunchedEffect(Unit){
-            scope.launch { snackBarHost.showSnackbar(snackBarText) }
-        }
-    }
-}

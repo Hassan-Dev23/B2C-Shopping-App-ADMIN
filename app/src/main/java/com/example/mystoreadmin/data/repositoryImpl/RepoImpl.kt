@@ -29,7 +29,13 @@ class RepoImpl @Inject constructor(
                 firestore.collection(CATEGORY_PATH).add(categoryModel).addOnSuccessListener {
                     trySend(ResultState.Success("Category Added Successfully."))
                 }.addOnFailureListener {
-                    trySend(ResultState.Error(it.message.toString()))
+                    trySend(
+                        ResultState.Error(
+                            "Error Message : ${it.message.toString()}" + "\n" +
+                                    "Error Cause : ${it.cause.toString()}" + "\n" +
+                                    "Error StackTrace : ${it.stackTrace}"
+                        )
+                    )
                 }
             } catch (e: Exception) {
                 trySend(
@@ -45,6 +51,47 @@ class RepoImpl @Inject constructor(
             }
         }
 
+    override suspend fun addCategoryPhoto(photoUri: Uri): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+        val fileName = "categories/category_${System.currentTimeMillis()}"
+        try {
+            storage.reference.child(fileName).putFile(photoUri).addOnSuccessListener {
+                it.storage.downloadUrl.addOnSuccessListener { photoUrl ->
+                    trySend(ResultState.Success(photoUrl.toString()))
+                }.addOnFailureListener {
+                    trySend(
+                        ResultState.Error(
+                            "Error Message : ${it.message.toString()}" + "\n" +
+                                    "Error Cause : ${it.cause.toString()}" + "\n" +
+                                    "Error StackTrace : ${it.stackTrace}"
+                        )
+                    )
+                }
+            }.addOnFailureListener {
+                trySend(
+                    ResultState.Error(
+                        "Error Message : ${it.message.toString()}" + "\n" +
+                                "Error Cause : ${it.cause.toString()}" + "\n" +
+                                "Error StackTrace : ${it.stackTrace}"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            trySend(
+                ResultState.Error(
+                    "Error Message : ${e.message.toString()}" + "\n" +
+                            "Error Cause : ${e.cause.toString()}" + "\n" +
+                            "Error StackTrace : ${e.stackTrace}"
+                )
+            )
+        }
+        awaitClose {
+            close()
+        }
+
+
+    }
+
     override suspend fun addProduct(product: Product): Flow<ResultState<String>> = callbackFlow {
 
         trySend(ResultState.Loading)
@@ -52,7 +99,13 @@ class RepoImpl @Inject constructor(
             firestore.collection(PRODUCT_PATH).add(product).addOnSuccessListener {
                 trySend(ResultState.Success("Product Added Successfully."))
             }.addOnFailureListener {
-                trySend(ResultState.Error(it.message.toString()))
+                trySend(
+                    ResultState.Error(
+                        "Error Message : ${it.message.toString()}" + "\n" +
+                                "Error Cause : ${it.cause.toString()}" + "\n" +
+                                "Error StackTrace : ${it.stackTrace}"
+                    )
+                )
             }
         } catch (e: Exception) {
             trySend(
@@ -78,7 +131,13 @@ class RepoImpl @Inject constructor(
 
                 trySend(ResultState.Success(categories))
             }.addOnFailureListener {
-                trySend(ResultState.Error(it.message.toString()))
+                trySend(
+                    ResultState.Error(
+                        "Error Message : ${it.message.toString()}" + "\n" +
+                                "Error Cause : ${it.cause.toString()}" + "\n" +
+                                "Error StackTrace : ${it.stackTrace}"
+                    )
+                )
             }
         } catch (e: Exception) {
             trySend(
@@ -94,46 +153,7 @@ class RepoImpl @Inject constructor(
         }
     }
 
-    //    override suspend fun addProductPhotos(photoUri: Uri): Flow<ResultState<String>> =
-//        callbackFlow {
-//            trySend(ResultState.Loading)
-//            try {
-//                System.currentTimeMillis()
-//                storage.reference.child("products/${System.currentTimeMillis()}")
-//                    .putFile(photoUri).addOnSuccessListener {
-//
-//                        it.storage.downloadUrl.addOnSuccessListener {
-//                            trySend(ResultState.Success(it.toString()))
-//                        }.addOnFailureListener {
-//                            trySend(
-//                                ResultState.Error(
-//                                    "Error Message : ${it.message.toString()}" + "\n" +
-//                                            "Error Cause : ${it.cause.toString()}" + "\n" +
-//                                            "Error StackTrace : ${it.stackTrace}"
-//                                )
-//                            )
-//                        }
-//                    }.addOnFailureListener {
-//                        trySend(
-//                            ResultState.Error(
-//                                "Error Message : ${it.message.toString()}" + "\n" +
-//                                        "Error Cause : ${it.cause.toString()}" + "\n" +
-//                                        "Error StackTrace : ${it.stackTrace}"
-//                            )
-//                        )
-//                    }
-//
-//            } catch (e: Exception) {
-//                trySend(
-//                    ResultState.Error(
-//                        "Error Message : ${e.message.toString()}" + "\n" +
-//                                "Error Cause : ${e.cause.toString()}" + "\n" +
-//                                "Error StackTrace : ${e.stackTrace}"
-//                    )
-//                )
-//            }
-//        }
-//    Same function from Chatgpt for list of uri
+
     override suspend fun addProductPhotos(photoUris: List<Uri>): Flow<ResultState<List<String>>> =
         callbackFlow {
             trySend(ResultState.Loading)
@@ -164,7 +184,13 @@ class RepoImpl @Inject constructor(
                                 }
                         }
                         .addOnFailureListener { error ->
-                            trySend(ResultState.Error("Upload Error: ${error.message}"))
+                            trySend(
+                                ResultState.Error(
+                                    "Error Message : ${error.message.toString()}" + "\n" +
+                                            "Error Cause : ${error.cause.toString()}" + "\n" +
+                                            "Error StackTrace : ${error.stackTrace}"
+                                )
+                            )
                             close()
                         }
                 }

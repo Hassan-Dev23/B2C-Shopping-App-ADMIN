@@ -8,6 +8,7 @@ import com.example.mystoreadmin.common.ResultState
 import com.example.mystoreadmin.common.ResultState.*
 import com.example.mystoreadmin.domain.models.CategoryModel
 import com.example.mystoreadmin.domain.models.Product
+import com.example.mystoreadmin.domain.useCases.AddCategoryPhotoUseCase
 import com.example.mystoreadmin.domain.useCases.AddCategoryUseCase
 import com.example.mystoreadmin.domain.useCases.AddProductPhotoUseCase
 import com.example.mystoreadmin.domain.useCases.AddProductUseCase
@@ -24,7 +25,8 @@ class MyViewModel @Inject constructor(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val addProductUseCase: AddProductUseCase,
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
-    private val addProductPhotoUseCase: AddProductPhotoUseCase
+    private val addProductPhotoUseCase: AddProductPhotoUseCase,
+    private val addCategoryPhotoUseCase: AddCategoryPhotoUseCase
 ) : ViewModel() {
     //    Ui States
     private val _addCategoryState = MutableStateFlow<UiState<String>>(UiState.Empty)
@@ -36,6 +38,8 @@ class MyViewModel @Inject constructor(
     val getAllCategoriesState = _getAllCategoriesState.asStateFlow()
     private val _addProductPhotosState = MutableStateFlow<UiState<List<String>>>(UiState.Empty)
     val addProductPhotosState = _addProductPhotosState.asStateFlow()
+    private val _addCategoryPhotoState = MutableStateFlow<UiState<String>>(UiState.Empty)
+    val addCategoryPhotoState = _addCategoryPhotoState.asStateFlow()
 
 
 
@@ -66,6 +70,33 @@ class MyViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+
+    fun addCategoryPhoto(photoUri: Uri){
+        viewModelScope.launch {
+            addCategoryPhotoUseCase.invoke(photoUri).collect{
+
+                when (it) {
+                    is ResultState.Error -> {
+                        _addCategoryPhotoState.value = UiState.Error(it.message)
+                    }
+
+                    is ResultState.Loading -> {
+                        _addCategoryPhotoState.value = UiState.Loading
+                    }
+
+                    is ResultState.Success<*> -> {
+
+                        _addCategoryPhotoState.value = UiState.Success(it.data as String)
+                    }
+
+                    is ResultState.Empty -> {}
+                }
+            }
+
+        }
+
     }
 
 

@@ -11,4 +11,5 @@ interface Repo {
     suspend fun addProduct(product: Product):Flow<ResultState<String>>
     suspend fun getAllCategories(): Flow<ResultState<List<CategoryModel>>>
     suspend fun addProductPhotos(photoUris: List<Uri>):Flow<ResultState<List<String>>>
+    suspend fun addCategoryPhoto(photoUri: Uri):Flow<ResultState<String>>
 }

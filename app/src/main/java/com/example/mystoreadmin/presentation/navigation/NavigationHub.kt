@@ -16,8 +16,8 @@ import com.example.mystoreadmin.presentation.ui.AddProductScreenUI
 
 @Composable
 fun NavigationHub() {
-    val backStack = rememberNavBackStack(AddProductScreen)
-    val snackBarHostState = remember{ SnackbarHostState() }
+    val backStack = rememberNavBackStack(AddCategoryScreen)
+    val snackBarHostState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = {
@@ -25,13 +25,13 @@ fun NavigationHub() {
         }) { innerPadding ->
         NavDisplay(
             backStack = backStack,
-            onBack = {backStack.removeLastOrNull()},
+            onBack = { backStack.removeLastOrNull() },
             entryProvider = entryProvider {
                 entry(AddProductScreen) { key ->
-                    AddProductScreenUI(innerPadding,snackBarHostState = snackBarHostState)
+                    AddProductScreenUI(innerPadding, snackBarHostState = snackBarHostState, backStack = backStack)
                 }
-                entry(AddCategoryScreen){ key ->
-                    AddCategoryScreenUI(innerPadding)
+                entry(AddCategoryScreen) { key ->
+                    AddCategoryScreenUI(innerPadding , backStack = backStack)
                 }
             }
         )

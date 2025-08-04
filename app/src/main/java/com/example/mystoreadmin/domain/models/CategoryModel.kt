@@ -1,5 +1,8 @@
 package com.example.mystoreadmin.domain.models
 
 data class CategoryModel(
-    val name : String = ""
+    val id : String = "",
+    val name : String = "",
+    val imageUrl : String = "",
+    val date : String = System.currentTimeMillis().toString()
 )

@@ -10,6 +10,7 @@ import com.example.mystoreadmin.data.di.DataModule_ProvideFirebaseFireStoreFacto
 import com.example.mystoreadmin.data.di.DataModule_ProvideFirebaseStorageFactory;
 import com.example.mystoreadmin.domain.di.DomainModule_ProvideRepoFactory;
 import com.example.mystoreadmin.domain.repo.Repo;
+import com.example.mystoreadmin.domain.useCases.AddCategoryPhotoUseCase;
 import com.example.mystoreadmin.domain.useCases.AddCategoryUseCase;
 import com.example.mystoreadmin.domain.useCases.AddProductPhotoUseCase;
 import com.example.mystoreadmin.domain.useCases.AddProductUseCase;
@@ -434,6 +435,10 @@ public final class DaggerBaseApplication_HiltComponents_SingletonC {
       return new AddProductPhotoUseCase(singletonCImpl.repo());
     }
 
+    AddCategoryPhotoUseCase addCategoryPhotoUseCase() {
+      return new AddCategoryPhotoUseCase(singletonCImpl.repo());
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
@@ -472,7 +477,7 @@ public final class DaggerBaseApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.example.mystoreadmin.presentation.viewModel.MyViewModel
-          return (T) new MyViewModel(viewModelCImpl.addCategoryUseCase(), viewModelCImpl.addProductUseCase(), viewModelCImpl.getAllCategoriesUseCase(), viewModelCImpl.addProductPhotoUseCase());
+          return (T) new MyViewModel(viewModelCImpl.addCategoryUseCase(), viewModelCImpl.addProductUseCase(), viewModelCImpl.getAllCategoriesUseCase(), viewModelCImpl.addProductPhotoUseCase(), viewModelCImpl.addCategoryPhotoUseCase());
 
           default: throw new AssertionError(id);
         }
